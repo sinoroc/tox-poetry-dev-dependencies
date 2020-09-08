@@ -1,0 +1,12 @@
+#
+
+
+[style]
+
+based_on_style = pep8
+blank_line_before_nested_class_or_def = true
+blank_line_before_module_docstring = true
+dedent_closing_brackets = true
+
+
+# EOF

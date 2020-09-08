@@ -1,0 +1,11 @@
+#
+
+
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = [
+    'setuptools >= 43.0.0',  # https://github.com/pypa/setuptools/pull/1634
+]
+
+
+# EOF
