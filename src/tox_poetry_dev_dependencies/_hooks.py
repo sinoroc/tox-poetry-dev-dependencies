@@ -1,8 +1,6 @@
 #
 
-
 """Tox plugin hooks."""
-
 
 import pathlib
 import typing
@@ -59,8 +57,7 @@ def _get_dev_requirements(project_root_path: pathlib.Path) -> typing.List[str]:
     else:
         requirements = [
             dependency.to_pep_508()
-            for dependency
-            in poetry_.package.dev_requires
+            for dependency in poetry_.package.dev_requires
         ]
     return requirements
 
