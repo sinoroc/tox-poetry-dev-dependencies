@@ -45,7 +45,8 @@ check:
 
 .PHONY: lint
 lint:
-	python3 -m pytest --mypy --pycodestyle --pydocstyle --pylint -m 'mypy or pycodestyle or pydocstyle or pylint'
+	python3 -m pytest --mypy --pycodestyle --pydocstyle --pylint --yapf \
+		-m 'mypy or pycodestyle or pydocstyle or pylint or yapf'
 
 
 .PHONY: mypy
@@ -84,7 +85,7 @@ pytest:
 
 .PHONY: review
 review: check
-	python3 -m pytest --mypy --pycodestyle --pydocstyle --pylint
+	python3 -m pytest --mypy --pycodestyle --pydocstyle --pylint --yapf
 
 
 .PHONY: clean

@@ -1,8 +1,6 @@
 #
 
-
 """Tox plugin hooks."""
-
 
 import pathlib
 import typing
@@ -53,14 +51,13 @@ def tox_configure(config: tox.config.Config) -> None:
 def _get_dev_requirements(project_root_path: pathlib.Path) -> typing.List[str]:
     poetry_factory = poetry.core.factory.Factory()
     try:
-        poetry_ = poetry_factory.create_poetry(project_root_path)
+        poetry_ = poetry_factory.create_poetry(str(project_root_path))
     except RuntimeError as runtime_error:
         raise NoPoetryFound from runtime_error
     else:
         requirements = [
             dependency.to_pep_508()
-            for dependency
-            in poetry_.package.dev_requires
+            for dependency in poetry_.package.dev_requires
         ]
     return requirements
 
