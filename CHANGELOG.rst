@@ -6,6 +6,8 @@
 0.0.2.dev0
 ==========
 
+* Allow download from alternative repositories (without authentication) for pip via environment variables.
+
 
 0.0.1
 =====
