@@ -3,8 +3,10 @@
 
 .. Keep the current version number on line number 6
 
-0.0.2.dev0
-==========
+0.0.2
+=====
+
+2020-09-28
 
 * Allow download from alternative repositories (without authentication) for pip via environment variables.
 
