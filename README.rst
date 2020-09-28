@@ -24,6 +24,23 @@ Source code:
 Usage
 =====
 
+Installation
+------------
+
+It is a plugin for Tox and it is available on PyPI, install it however best fits the workflow. A useful thing to know though, is that it is possible to enforce the installation (in an isolated environment) of the plugin directly from within the ``tox.ini`` file, thanks to the ``requires`` setting:
+
+.. code::
+
+    [tox]
+    requires =
+        tox-poetry-dev-dependencies
+
+
+* https://tox.readthedocs.io/en/latest/config.html#conf-requires
+
+By default the plugin does not do anything. Use one of the following settings to activate the corresponding features.
+
+
 ``add_poetry_dev_dependencies``
 -------------------------------
 
