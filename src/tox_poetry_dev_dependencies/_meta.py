@@ -2,7 +2,10 @@
 
 """Meta information."""
 
-import importlib_metadata
+try:
+    import importlib.metadata as importlib_metadata
+except ImportError:
+    import importlib_metadata  # type: ignore[no-redef]
 
 PROJECT_NAME = 'tox-poetry-dev-dependencies'
 
