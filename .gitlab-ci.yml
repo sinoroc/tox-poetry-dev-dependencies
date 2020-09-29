@@ -10,7 +10,7 @@
 
 'review py35':
   extends: '.review'
-  image: 'python:3.6'
+  image: 'python:3.5'
 
 'review py36':
   extends: '.review'
