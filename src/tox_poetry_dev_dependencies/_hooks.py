@@ -6,6 +6,7 @@ import pathlib
 import typing
 
 import poetry.core.factory
+import poetry.core.poetry
 import tox
 
 if typing.TYPE_CHECKING:
@@ -48,6 +49,12 @@ def tox_addoption(parser: tox.config.Parser) -> None:
             "'PIP_EXTRA_INDEX_URL')."
         ),
     )
+    parser.add_testenv_attribute(
+        'poetry_install_locked_dependencies',
+        'bool',
+        "Install locked versions of the dependencies according to lock file",
+        default=False,
+    )
 
 
 @tox.hookimpl  # type: ignore[misc]
@@ -58,6 +65,8 @@ def tox_configure(config: tox.config.Config) -> None:
     except NoPoetryFound:
         pass
     else:
+        pinned_deps = _get_pinned_deps(poetry_)
+        #
         dev_deps = _get_dev_requirements(poetry_)
         _add_dev_dependencies(config, dev_deps)
         #
@@ -129,6 +138,17 @@ def _get_dev_requirements(
         for dependency in poetry_.package.dev_requires
     ]
     return requirements
+
+
+def _get_pinned_deps(
+        poetry_: poetry.core.poetry.Poetry,
+) -> typing.List[tox.config.DepConfig]:
+    #
+    pinned_deps = [
+        tox.config.DepConfig(dependency.to_dependency().to_pep_508())
+        for dependency in poetry_.locker.get_packages()
+    ]
+    return pinned_deps
 
 
 def _get_index_servers(
