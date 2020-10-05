@@ -103,4 +103,23 @@ If pip's environment variables are already defined then they are not overwritten
     PIP_INDEX_URL=https://delta.example/simple tox
 
 
+``poetry_experimental_no_virtual_env``
+--------------------------------------
+
+*Experimental feature*
+
+Set the ``testenv`` setting ``poetry_experimental_no_virtual_env`` to ``True`` to skip the creation of a virtual environment for this test environment.
+
+.. code::
+
+    [testenv:real]
+    deps =
+    poetry_experimental_no_virtual_env = True
+    skip_install = True
+
+
+This might be useful in cases where all the required dependencies and tools are already available, i.e. they are already installed in global or user *site packages* directory, or maybe they are already installed directly in the system (via ``apt``, ``yum``, ``pacman``, etc.).
+
+For such environments it might be best to skip the installation of the project (``skip_install``) as well as keeping the list of dependencies empty (``deps``).
+
 .. EOF

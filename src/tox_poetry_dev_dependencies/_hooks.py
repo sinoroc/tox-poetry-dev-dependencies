@@ -48,6 +48,12 @@ def tox_addoption(parser: tox.config.Parser) -> None:
             "'PIP_EXTRA_INDEX_URL')."
         ),
     )
+    parser.add_testenv_attribute(
+        'poetry_experimental_no_virtual_env',
+        'bool',
+        "Do not create a virtual environment.",
+        default=False,
+    )
 
 
 def _is_test_env(env_config: tox.config.TestenvConfig) -> bool:
@@ -87,6 +93,33 @@ def tox_configure(config: tox.config.Config) -> None:
         #
         index_servers = _get_index_servers(poetry_)
         _add_index_servers(config, index_servers)
+
+
+@tox.hookimpl  # type: ignore[misc]
+def tox_testenv_create(
+        venv: tox.venv.VirtualEnv,
+        action: tox.action.Action,  # pylint: disable=unused-argument
+) -> typing.Any:
+    """Set hook."""
+    #
+    result = None
+    #
+    if _is_test_env(venv.envconfig):
+        if venv.envconfig.poetry_experimental_no_virtual_env is True:
+            #
+            tox.venv.cleanup_for_venv(venv)
+            #
+            python_link_name = venv.envconfig.get_envpython()
+            python_link_path = pathlib.Path(python_link_name)
+            python_link_path.parent.mkdir(parents=True)
+            python_link_target = (
+                tox.interpreters.tox_get_python_executable(venv.envconfig)
+            )
+            pathlib.Path(python_link_name).symlink_to(python_link_target)
+            #
+            result = True  # anything but None
+    #
+    return result
 
 
 def _add_dev_dependencies(
