@@ -50,6 +50,30 @@ def tox_addoption(parser: tox.config.Parser) -> None:
     )
 
 
+def _is_test_env(env_config: tox.config.TestenvConfig) -> bool:
+    #
+    is_test_env = False
+    #
+    tox_config = env_config.config
+    env_name = env_config.envname
+    #
+    known_private_env_names = []
+    #
+    provision_tox_env = getattr(tox_config, 'provision_tox_env', None)
+    if provision_tox_env:
+        known_private_env_names.append(provision_tox_env)
+    #
+    isolated_build_env = getattr(tox_config, 'isolated_build_env', None)
+    if isolated_build_env:
+        known_private_env_names.append(isolated_build_env)
+    #
+    if env_name not in known_private_env_names:
+        if env_name in tox_config.envlist:
+            is_test_env = True
+    #
+    return is_test_env
+
+
 @tox.hookimpl  # type: ignore[misc]
 def tox_configure(config: tox.config.Config) -> None:
     """Set hook."""
@@ -70,13 +94,8 @@ def _add_dev_dependencies(
         dev_dep_configs: typing.Iterable[tox.config.DepConfig],
 ) -> None:
     #
-    skip_envs = [
-        tox_config.isolated_build_env,
-        tox_config.provision_tox_env,
-    ]
-    #
     for env_config in tox_config.envconfigs.values():
-        if env_config.envname not in skip_envs:
+        if _is_test_env(env_config):
             if env_config.add_poetry_dev_dependencies is True:
                 for dep_config in dev_dep_configs:
                     env_config.deps.append(dep_config)
