@@ -26,6 +26,10 @@ class NoPoetryFound(_Exception):
     """No poetry found."""
 
 
+class NoPyprojectTomlFound(_Exception):
+    """No 'pyproject.toml' file  found."""
+
+
 class CanNotHaveMultipleDefaultSourceRepositories(_Exception):
     """Can not have multiple 'default' source repositories."""
 
@@ -48,6 +52,36 @@ def tox_addoption(parser: tox.config.Parser) -> None:
             "'PIP_EXTRA_INDEX_URL')."
         ),
     )
+    parser.add_testenv_attribute(
+        'poetry_experimental_no_virtual_env',
+        'bool',
+        "Do not create a virtual environment.",
+        default=False,
+    )
+
+
+def _is_test_env(env_config: tox.config.TestenvConfig) -> bool:
+    #
+    is_test_env = False
+    #
+    tox_config = env_config.config
+    env_name = env_config.envname
+    #
+    known_private_env_names = []
+    #
+    provision_tox_env = getattr(tox_config, 'provision_tox_env', None)
+    if provision_tox_env:
+        known_private_env_names.append(provision_tox_env)
+    #
+    isolated_build_env = getattr(tox_config, 'isolated_build_env', None)
+    if isolated_build_env:
+        known_private_env_names.append(isolated_build_env)
+    #
+    if env_name not in known_private_env_names:
+        if env_name in tox_config.envlist:
+            is_test_env = True
+    #
+    return is_test_env
 
 
 @tox.hookimpl  # type: ignore[misc]
@@ -55,7 +89,7 @@ def tox_configure(config: tox.config.Config) -> None:
     """Set hook."""
     try:
         poetry_ = _get_poetry(config.setupdir)
-    except NoPoetryFound:
+    except (NoPoetryFound, NoPyprojectTomlFound):
         pass
     else:
         dev_deps = _get_dev_requirements(poetry_)
@@ -65,18 +99,40 @@ def tox_configure(config: tox.config.Config) -> None:
         _add_index_servers(config, index_servers)
 
 
+@tox.hookimpl  # type: ignore[misc]
+def tox_testenv_create(
+        venv: tox.venv.VirtualEnv,
+        action: tox.action.Action,  # pylint: disable=unused-argument
+) -> typing.Any:
+    """Set hook."""
+    #
+    result = None
+    #
+    if _is_test_env(venv.envconfig):
+        if venv.envconfig.poetry_experimental_no_virtual_env is True:
+            #
+            tox.venv.cleanup_for_venv(venv)
+            #
+            python_link_name = venv.envconfig.get_envpython()
+            python_link_path = pathlib.Path(python_link_name)
+            python_link_path.parent.mkdir(parents=True)
+            python_link_target = (
+                tox.interpreters.tox_get_python_executable(venv.envconfig)
+            )
+            pathlib.Path(python_link_name).symlink_to(python_link_target)
+            #
+            result = True  # anything but None
+    #
+    return result
+
+
 def _add_dev_dependencies(
         tox_config: tox.config.Config,
         dev_dep_configs: typing.Iterable[tox.config.DepConfig],
 ) -> None:
     #
-    skip_envs = [
-        tox_config.isolated_build_env,
-        tox_config.provision_tox_env,
-    ]
-    #
     for env_config in tox_config.envconfigs.values():
-        if env_config.envname not in skip_envs:
+        if _is_test_env(env_config):
             if env_config.add_poetry_dev_dependencies is True:
                 for dep_config in dev_dep_configs:
                     env_config.deps.append(dep_config)
@@ -115,8 +171,10 @@ def _get_poetry(project_root_path: pathlib.Path) -> poetry.core.poetry.Poetry:
     poetry_factory = poetry.core.factory.Factory()
     try:
         poetry_ = poetry_factory.create_poetry(str(project_root_path))
-    except RuntimeError as runtime_error:
-        raise NoPoetryFound from runtime_error
+    except RuntimeError as exc:
+        raise NoPyprojectTomlFound from exc
+    except poetry.core.pyproject.exceptions.PyProjectException as exc:
+        raise NoPoetryFound from exc
     return poetry_
 
 

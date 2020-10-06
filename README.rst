@@ -24,6 +24,24 @@ Source code:
 Usage
 =====
 
+Installation
+------------
+
+It is a plugin for Tox and it is available on PyPI, install it however best fits the workflow. A useful thing to know though, is that starting with Tox version *3.8* it is possible to enforce the installation (in an isolated environment) of the plugin directly from within the ``tox.ini`` file, thanks to the ``requires`` setting (Tox *3.2*) and the *auto-provisioning* feature (Tox *3.8*):
+
+.. code::
+
+    [tox]
+    requires =
+        tox-poetry-dev-dependencies
+
+
+* https://tox.readthedocs.io/en/latest/config.html#conf-requires
+* https://tox.readthedocs.io/en/latest/example/basic.html#tox-auto-provisioning
+
+By default the plugin does not do anything. Use one of the following settings to activate the corresponding features.
+
+
 ``add_poetry_dev_dependencies``
 -------------------------------
 
@@ -84,5 +102,24 @@ If pip's environment variables are already defined then they are not overwritten
 
     PIP_INDEX_URL=https://delta.example/simple tox
 
+
+``poetry_experimental_no_virtual_env``
+--------------------------------------
+
+*Experimental feature*
+
+Set the ``testenv`` setting ``poetry_experimental_no_virtual_env`` to ``True`` to skip the creation of a virtual environment for this test environment.
+
+.. code::
+
+    [testenv:real]
+    deps =
+    poetry_experimental_no_virtual_env = True
+    skip_install = True
+
+
+This might be useful in cases where all the required dependencies and tools are already available, i.e. they are already installed in global or user *site packages* directory, or maybe they are already installed directly in the system (via ``apt``, ``yum``, ``pacman``, etc.).
+
+For such environments it might be best to skip the installation of the project (``skip_install``) as well as keeping the list of dependencies empty (``deps``).
 
 .. EOF
