@@ -3,6 +3,10 @@
 
 .. Keep the current version number on line number 6
 
+0.0.4.dev0
+==========
+
+
 0.0.3
 =====
 
