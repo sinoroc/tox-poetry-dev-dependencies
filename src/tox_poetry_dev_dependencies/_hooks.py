@@ -26,6 +26,10 @@ class NoPoetryFound(_Exception):
     """No poetry found."""
 
 
+class NoPyprojectTomlFound(_Exception):
+    """No 'pyproject.toml' file  found."""
+
+
 class CanNotHaveMultipleDefaultSourceRepositories(_Exception):
     """Can not have multiple 'default' source repositories."""
 
@@ -85,7 +89,7 @@ def tox_configure(config: tox.config.Config) -> None:
     """Set hook."""
     try:
         poetry_ = _get_poetry(config.setupdir)
-    except NoPoetryFound:
+    except (NoPoetryFound, NoPyprojectTomlFound):
         pass
     else:
         dev_deps = _get_dev_requirements(poetry_)
@@ -167,8 +171,10 @@ def _get_poetry(project_root_path: pathlib.Path) -> poetry.core.poetry.Poetry:
     poetry_factory = poetry.core.factory.Factory()
     try:
         poetry_ = poetry_factory.create_poetry(str(project_root_path))
-    except RuntimeError as runtime_error:
-        raise NoPoetryFound from runtime_error
+    except RuntimeError as exc:
+        raise NoPyprojectTomlFound from exc
+    except poetry.core.pyproject.exceptions.PyProjectException as exc:
+        raise NoPoetryFound from exc
     return poetry_
 
 
