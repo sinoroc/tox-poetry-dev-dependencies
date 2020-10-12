@@ -41,7 +41,7 @@ class CanNotHaveMultipleDefaultSourceRepositories(_Exception):
 def tox_addoption(parser: tox.config.Parser) -> None:
     """Set hook."""
     parser.add_testenv_attribute(
-        'add_poetry_dev_dependencies',
+        'poetry_add_dev_dependencies',
         'bool',
         "Add Poetry's 'dev-dependencies' to the test environment.",
         default=False,
@@ -165,7 +165,7 @@ def _add_dev_dependencies(
     for env_config in tox_config.envconfigs.values():
         if env_config.poetry_experimental_add_locked_dependencies is not True:
             if _is_test_env(env_config):
-                if env_config.add_poetry_dev_dependencies is True:
+                if env_config.poetry_add_dev_dependencies is True:
                     for dep_config in dev_dep_configs:
                         env_config.deps.append(dep_config)
 
@@ -209,7 +209,7 @@ def _add_locked_dependencies(
             if env_config.poetry_experimental_add_locked_dependencies is True:
                 for dep_config in locked_deps['main']:
                     env_config.deps.append(dep_config)
-                if env_config.add_poetry_dev_dependencies is True:
+                if env_config.poetry_add_dev_dependencies is True:
                     for dep_config in locked_deps['dev']:
                         env_config.deps.append(dep_config)
 
