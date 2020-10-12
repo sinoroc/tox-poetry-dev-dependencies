@@ -6,6 +6,7 @@ import pathlib
 import typing
 
 import poetry.core.factory
+import tomlkit
 import tox
 
 if typing.TYPE_CHECKING:
@@ -16,6 +17,8 @@ if typing.TYPE_CHECKING:
 
 PIP_DEFAULT_INDEX_SERVER_URL = 'https://pypi.org/simple'
 PIP_DEFAULT_INDEX_SERVER_NAME = 'pypi'
+
+POETRY_LOCKFILE_FILE_NAME = 'poetry.lock'
 
 
 class _Exception(Exception):
@@ -47,15 +50,24 @@ def tox_addoption(parser: tox.config.Parser) -> None:
         'poetry_use_source_repos',
         'string',
         (
-            "Use Poetry's source repositories. Set 'pip_env_vars' to set as "
-            "Pip environment variables ('PIP_INDEX_URL', and "
-            "'PIP_EXTRA_INDEX_URL')."
+            "Use Poetry's source repositories. Set 'pip_env_vars' to set as"
+            " Pip environment variables ('PIP_INDEX_URL' and"
+            " 'PIP_EXTRA_INDEX_URL')."
         ),
     )
     parser.add_testenv_attribute(
         'poetry_experimental_no_virtual_env',
         'bool',
-        "Do not create a virtual environment.",
+        "(EXPERIMENTAL) Do not create a virtual environment.",
+        default=False,
+    )
+    parser.add_testenv_attribute(
+        'poetry_experimental_add_locked_dependencies',
+        'bool',
+        (
+            "(EXPERIMENTAL) Add Poetry's locked dependencies from the lockfile"
+            " to 'deps' in the test environment."
+        ),
         default=False,
     )
 
@@ -99,11 +111,18 @@ def _is_test_env(env_config: tox.config.TestenvConfig) -> bool:
 @tox.hookimpl  # type: ignore[misc]
 def tox_configure(config: tox.config.Config) -> None:
     """Set hook."""
+    #
+    project_dir_path = pathlib.Path(config.setupdir)
+    #
     try:
-        poetry_ = _get_poetry(config.setupdir)
+        poetry_ = _get_poetry(project_dir_path)
     except (NoPoetryFound, NoPyprojectTomlFound):
         pass
     else:
+        #
+        locked_deps = _get_locked_deps(project_dir_path)
+        _add_locked_dependencies(config, locked_deps)
+        #
         dev_deps = _get_dev_requirements(poetry_)
         _add_dev_dependencies(config, dev_deps)
         #
@@ -144,10 +163,11 @@ def _add_dev_dependencies(
 ) -> None:
     #
     for env_config in tox_config.envconfigs.values():
-        if _is_test_env(env_config):
-            if env_config.add_poetry_dev_dependencies is True:
-                for dep_config in dev_dep_configs:
-                    env_config.deps.append(dep_config)
+        if env_config.poetry_experimental_add_locked_dependencies is not True:
+            if _is_test_env(env_config):
+                if env_config.add_poetry_dev_dependencies is True:
+                    for dep_config in dev_dep_configs:
+                        env_config.deps.append(dep_config)
 
 
 def _add_index_servers(
@@ -177,6 +197,21 @@ def _add_index_servers_as_pip_env_vars(
         env_config.setenv['PIP_EXTRA_INDEX_URL'] = ' '.join(
             [index_server.url for index_server in pip_extra_index_servers],
         )
+
+
+def _add_locked_dependencies(
+        tox_config: tox.config.Config,
+        locked_deps: typing.Mapping[str, typing.List[tox.config.DepConfig]],
+) -> None:
+    #
+    for env_config in tox_config.envconfigs.values():
+        if _is_test_env(env_config):
+            if env_config.poetry_experimental_add_locked_dependencies is True:
+                for dep_config in locked_deps['main']:
+                    env_config.deps.append(dep_config)
+                if env_config.add_poetry_dev_dependencies is True:
+                    for dep_config in locked_deps['dev']:
+                        env_config.deps.append(dep_config)
 
 
 def _get_poetry(project_root_path: pathlib.Path) -> poetry.core.poetry.Poetry:
@@ -255,6 +290,32 @@ def _get_index_servers(
     )
     #
     return index_servers
+
+
+def _get_locked_deps(
+        project_root_path: pathlib.Path,
+) -> typing.Dict[str, typing.List[tox.config.DepConfig]]:
+    #
+    locked_deps: typing.Dict[str, typing.List[tox.config.DepConfig]] = {}
+    #
+    lock_file_path = project_root_path.joinpath(POETRY_LOCKFILE_FILE_NAME)
+    if lock_file_path.is_file():
+        #
+        lock_str = lock_file_path.read_text()
+        lock_document = tomlkit.parse(lock_str)
+        #
+        for dependency in lock_document['package']:
+            #
+            dep_name = dependency['name']
+            dep_version = dependency['version']
+            #
+            dep_pep_508 = f'{dep_name}=={dep_version}'
+            #
+            dep_category = dependency['category']
+            dep_config = tox.config.DepConfig(dep_pep_508)
+            locked_deps.setdefault(dep_category, []).append(dep_config)
+    #
+    return locked_deps
 
 
 # EOF

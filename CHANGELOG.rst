@@ -6,6 +6,8 @@
 0.0.4.dev0
 ==========
 
+* Add the ``poetry_experimental_add_locked_dependencies`` setting to let Tox add Poetry's locked dependencies from Poetry's lockfile (experimental feature).
+
 
 0.0.3
 =====
