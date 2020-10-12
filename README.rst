@@ -53,19 +53,19 @@ Set the ``testenv`` setting ``poetry_experimental_add_locked_dependencies`` to `
     # ...
     poetry_experimental_add_locked_dependencies = True
 
-If ``add_poetry_dev_dependencies`` is set as well then the development dependencies are added with the version from the *lockfile*.
+If ``poetry_add_dev_dependencies`` is set as well then the development dependencies are added with the version from the *lockfile*.
 
 
-``add_poetry_dev_dependencies``
+``poetry_add_dev_dependencies``
 -------------------------------
 
-Set the ``testenv`` setting ``add_poetry_dev_dependencies`` to ``True`` to let Tox add Poetry's development dependencies to the ``deps`` list in the test environment.
+Set the ``testenv`` setting ``poetry_add_dev_dependencies`` to ``True`` to let Tox add Poetry's development dependencies to the ``deps`` list in the test environment.
 
 .. code::
 
     [testenv:example]
     # ...
-    add_poetry_dev_dependencies = True
+    poetry_add_dev_dependencies = True
 
 
 ``poetry_use_source_repos``
