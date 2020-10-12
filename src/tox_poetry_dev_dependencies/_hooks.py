@@ -61,6 +61,18 @@ def tox_addoption(parser: tox.config.Parser) -> None:
 
 
 def _is_test_env(env_config: tox.config.TestenvConfig) -> bool:
+    """Check if it is a test environment.
+
+    Tox creates environments for provisioning (`.tox`) and for isolated build
+    (`.packaging`) in addition to the usual test environments. And in hooks
+    such as `tox_testenv_create` it is not clear if the environment is a test
+    environment or one of those environments used for tox's own purposes.
+
+    So we start by excluding the provisioning environment named after
+    `provision_tox_env` and the build isolation environment named after
+    `isolated_build_env`. Then we keep only the environments listed in
+    `envlist`.
+    """
     #
     is_test_env = False
     #
