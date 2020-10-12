@@ -122,4 +122,15 @@ This might be useful in cases where all the required dependencies and tools are 
 
 For such environments it might be best to skip the installation of the project (``skip_install``) as well as keeping the list of dependencies empty (``deps``).
 
+
+Appendix
+========
+
+Similar projects
+----------------
+
+* https://pypi.org/project/tox-poetry-installer/
+* https://pypi.org/project/tox-poetry/
+
+
 .. EOF
