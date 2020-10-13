@@ -1,6 +1,10 @@
 ..
 
 
+.. contents::
+    :backlinks: none
+
+
 Introduction
 ============
 
@@ -23,21 +27,6 @@ Source code:
 
 Usage
 =====
-
-Installation
-------------
-
-It is a plugin for Tox and it is available on PyPI, install it however best fits the workflow. A useful thing to know though, is that starting with Tox version *3.8* it is possible to enforce the installation (in an isolated environment) of the plugin directly from within the ``tox.ini`` file, thanks to the ``requires`` setting (Tox *3.2*) and the *auto-provisioning* feature (Tox *3.8*):
-
-.. code::
-
-    [tox]
-    requires =
-        tox-poetry-dev-dependencies
-
-
-* https://tox.readthedocs.io/en/latest/config.html#conf-requires
-* https://tox.readthedocs.io/en/latest/example/basic.html#tox-auto-provisioning
 
 By default the plugin does not do anything. Use one of the following settings to activate the corresponding features.
 
@@ -138,6 +127,22 @@ For such environments it might be best to skip the installation of the project (
 
 Appendix
 ========
+
+Installation
+------------
+
+It is a plugin for Tox and it is available on PyPI, install it however best fits the workflow. A useful thing to know though, is that starting with Tox version *3.8* it is possible to enforce the installation (in an isolated environment) of the plugin directly from within the ``tox.ini`` file, thanks to the ``requires`` setting (Tox *3.2*) and the *auto-provisioning* feature (Tox *3.8*):
+
+.. code::
+
+    [tox]
+    requires =
+        tox-poetry-dev-dependencies
+
+
+* https://tox.readthedocs.io/en/latest/config.html#conf-requires
+* https://tox.readthedocs.io/en/latest/example/basic.html#tox-auto-provisioning
+
 
 Similar projects
 ----------------
