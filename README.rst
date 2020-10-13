@@ -4,7 +4,7 @@
 Introduction
 ============
 
-Tox plugin to let Tox know about Poetry's development dependencies.
+Tox plugin to help working with Poetry-based projects.
 
 
 Repositories
