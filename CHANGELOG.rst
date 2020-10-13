@@ -3,8 +3,10 @@
 
 .. Keep the current version number on line number 6
 
-0.0.4.dev0
-==========
+0.0.4
+=====
+
+*2020-10-13*
 
 * Rename setting ``add_poetry_dev_dependencies`` to ``poetry_add_dev_dependencies``.
 * Add the ``poetry_experimental_add_locked_dependencies`` setting to let Tox add Poetry's locked dependencies from Poetry's lockfile (experimental feature).
