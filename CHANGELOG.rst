@@ -8,7 +8,7 @@
 
 * Rename setting ``add_poetry_dev_dependencies`` to ``poetry_add_dev_dependencies``.
 * Add the ``poetry_experimental_add_locked_dependencies`` setting to let Tox add Poetry's locked dependencies from Poetry's lockfile (experimental feature).
-* Remove the *PEP 396* ``__version__``. This also allows getting ride of the dependency on `importlib-metadata``.
+* Remove the *PEP 396* ``__version__``. This also allows getting rid of the dependency on `importlib-metadata``.
 
 
 0.0.3

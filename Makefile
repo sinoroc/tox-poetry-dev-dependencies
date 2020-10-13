@@ -5,11 +5,15 @@ source_dir := ./src
 tests_dir := ./test
 
 
-.DEFAULT_GOAL := refresh
+.DEFAULT_GOAL := all
+
+
+.PHONY: all
+all: develop review package
 
 
 .PHONY: refresh
-refresh: clean develop review package
+refresh: clean all
 
 
 .PHONY: develop
@@ -91,6 +95,7 @@ review: check
 .PHONY: clean
 clean:
 	$(RM) --recursive ./.eggs/
+	$(RM) --recursive ./.mypy_cache/
 	$(RM) --recursive ./.pytest_cache/
 	$(RM) --recursive ./build/
 	$(RM) --recursive ./dist/
