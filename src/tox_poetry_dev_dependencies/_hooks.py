@@ -2,6 +2,8 @@
 
 """Tox plugin hooks."""
 
+from __future__ import annotations
+
 import pathlib
 import typing
 
@@ -172,7 +174,7 @@ def _add_dev_dependencies(
 
 def _add_index_servers(
         tox_config: tox.config.Config,
-        index_servers: 'IndexServersT',
+        index_servers: IndexServersT,
 ) -> None:
     #
     for env_config in tox_config.envconfigs.values():
@@ -182,7 +184,7 @@ def _add_index_servers(
 
 def _add_index_servers_as_pip_env_vars(
         env_config: tox.config.TestenvConfig,
-        index_servers: 'IndexServersT',
+        index_servers: IndexServersT,
 ) -> None:
     #
     pip_index_server = index_servers[0]
@@ -238,7 +240,7 @@ def _get_dev_requirements(
 
 def _get_index_servers(
         poetry_: poetry.core.poetry.Poetry,
-) -> 'IndexServersT':
+) -> IndexServersT:
     #
     poetry_source_repos = poetry_.local_config.get('source', [])
     #
