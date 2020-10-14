@@ -42,8 +42,6 @@ Set the ``testenv`` setting ``poetry_experimental_add_locked_dependencies`` to `
     # ...
     poetry_experimental_add_locked_dependencies = True
 
-If ``poetry_add_dev_dependencies`` is set as well then the development dependencies are added with the version from the *lockfile*.
-
 
 ``poetry_add_dev_dependencies``
 -------------------------------
@@ -55,6 +53,50 @@ Set the ``testenv`` setting ``poetry_add_dev_dependencies`` to ``True`` to let T
     [testenv:example]
     # ...
     poetry_add_dev_dependencies = True
+
+
+Dependency settings combination
+-------------------------------
+
+The settings ``poetry_experimental_add_locked_dependencies`` and ``poetry_add_dev_dependencies`` are independent and can be used in combination. The following table shows the expected result for each possible combination of these two settings.
+
+The *source file* column shows which file is used as source for the dependencies. The ``deps`` column shows an example of what dependencies are expected to be added to ``deps`` for that test environment. In that example ``Lib = '~1.0'`` is a mandatory dependency locking to ``Lib==1.2.3`` and ``Dev = '~3.0'`` is a development dependency locking to ``Dev==3.2.1``.
+
+.. |arrow| unicode:: 0x21d2
+
+.. list-table::
+    :header-rows: 1
+
+    *   - ``*_locked_dependencies``
+        - ``*_dev_dependencies``
+        - |arrow|
+        - source file
+        - |arrow|
+        - resulting ``deps``
+    *   - ``False``
+        - ``False``
+        -
+        - ``pyproject.toml``
+        -
+        - ``Lib~=1.0``
+    *   - ``True``
+        - ``False``
+        -
+        - ``poetry.lock``
+        -
+        - ``Lib==1.2.3``
+    *   - ``False``
+        - ``True``
+        -
+        - ``pyproject.toml``
+        -
+        - ``Lib~=1.0``, ``Dev~=3.0``
+    *   - ``True``
+        - ``True``
+        -
+        - ``poetry.lock``
+        -
+        - ``Lib==1.2.3``, ``Dev==3.2.1``
 
 
 ``poetry_use_source_repos``
