@@ -2,6 +2,8 @@
 
 """Tox plugin hooks."""
 
+from __future__ import annotations
+
 import pathlib
 import typing
 
@@ -35,6 +37,10 @@ class NoPyprojectTomlFound(_Exception):
 
 class CanNotHaveMultipleDefaultSourceRepositories(_Exception):
     """Can not have multiple 'default' source repositories."""
+
+
+class UnsupportedLockedDependency(_Exception):
+    """Unsupported type of locked dependency."""
 
 
 @tox.hookimpl  # type: ignore[misc]
@@ -172,7 +178,7 @@ def _add_dev_dependencies(
 
 def _add_index_servers(
         tox_config: tox.config.Config,
-        index_servers: 'IndexServersT',
+        index_servers: IndexServersT,
 ) -> None:
     #
     for env_config in tox_config.envconfigs.values():
@@ -182,7 +188,7 @@ def _add_index_servers(
 
 def _add_index_servers_as_pip_env_vars(
         env_config: tox.config.TestenvConfig,
-        index_servers: 'IndexServersT',
+        index_servers: IndexServersT,
 ) -> None:
     #
     pip_index_server = index_servers[0]
@@ -238,7 +244,7 @@ def _get_dev_requirements(
 
 def _get_index_servers(
         poetry_: poetry.core.poetry.Poetry,
-) -> 'IndexServersT':
+) -> IndexServersT:
     #
     poetry_source_repos = poetry_.local_config.get('source', [])
     #
@@ -306,13 +312,25 @@ def _get_locked_deps(
         #
         for dependency in lock_document['package']:
             #
+            dep_pep_508 = None
+            #
             dep_name = dependency['name']
             dep_version = dependency['version']
             #
-            dep_pep_508 = f'{dep_name}=={dep_version}'
+            dep_source = dependency.get('source', None)
+            if dep_source:
+                if dep_source['type'] == 'url':
+                    dep_url = dep_source['url']
+                    dep_pep_508 = f'{dep_name} @ {dep_url}'
+            else:
+                dep_pep_508 = f'{dep_name}=={dep_version}'
+            #
+            if dep_pep_508:
+                dep_config = tox.config.DepConfig(dep_pep_508)
+            else:
+                raise UnsupportedLockedDependency(dependency)
             #
             dep_category = dependency['category']
-            dep_config = tox.config.DepConfig(dep_pep_508)
             locked_deps.setdefault(dep_category, []).append(dep_config)
     #
     return locked_deps
