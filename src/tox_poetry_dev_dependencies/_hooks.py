@@ -39,6 +39,10 @@ class CanNotHaveMultipleDefaultSourceRepositories(_Exception):
     """Can not have multiple 'default' source repositories."""
 
 
+class UnsupportedLockedDependency(_Exception):
+    """Unsupported type of locked dependency."""
+
+
 @tox.hookimpl  # type: ignore[misc]
 def tox_addoption(parser: tox.config.Parser) -> None:
     """Set hook."""
@@ -308,13 +312,25 @@ def _get_locked_deps(
         #
         for dependency in lock_document['package']:
             #
+            dep_pep_508 = None
+            #
             dep_name = dependency['name']
             dep_version = dependency['version']
             #
-            dep_pep_508 = f'{dep_name}=={dep_version}'
+            dep_source = dependency.get('source', None)
+            if dep_source:
+                if dep_source['type'] == 'url':
+                    dep_url = dep_source['url']
+                    dep_pep_508 = f'{dep_name} @ {dep_url}'
+            else:
+                dep_pep_508 = f'{dep_name}=={dep_version}'
+            #
+            if dep_pep_508:
+                dep_config = tox.config.DepConfig(dep_pep_508)
+            else:
+                raise UnsupportedLockedDependency(dependency)
             #
             dep_category = dependency['category']
-            dep_config = tox.config.DepConfig(dep_pep_508)
             locked_deps.setdefault(dep_category, []).append(dep_config)
     #
     return locked_deps
