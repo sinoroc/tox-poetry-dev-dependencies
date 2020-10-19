@@ -6,6 +6,8 @@
 0.0.5.dev0
 ==========
 
+* Add support for URL dependencies in lockfile
+
 
 0.0.4
 =====
