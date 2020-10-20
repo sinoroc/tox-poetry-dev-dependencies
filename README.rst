@@ -1,5 +1,13 @@
-..
+.. image:: https://travis-ci.com/sinoroc/tox-poetry-dev-dependencies.svg
+    :target: https://travis-ci.com/sinoroc/tox-poetry-dev-dependencies
 
+.. image:: https://img.shields.io/pypi/v/tox-poetry-dev-dependencies.svg
+    :target: https://pypi.python.org/pypi/tox-poetry-dev-dependencies/
+
+.. image:: https://img.shields.io/pypi/pyversions/tox-poetry-dev-dependencies.svg
+    :target: https://pypi.python.org/pypi/tox-poetry-dev-dependencies/
+
+..
 
 .. contents::
     :backlinks: none
