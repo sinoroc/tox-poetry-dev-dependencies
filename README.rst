@@ -62,40 +62,41 @@ The settings ``poetry_experimental_add_locked_dependencies`` and ``poetry_add_de
 
 The *source file* column shows which file is used as source for the dependencies. The ``deps`` column shows an example of what dependencies are expected to be added to ``deps`` for that test environment. In that example ``Lib = '~1.0'`` is a mandatory dependency locking to ``Lib==1.2.3`` and ``Dev = '~3.0'`` is a development dependency locking to ``Dev==3.2.1``.
 
-.. |arrow| unicode:: 0x21d2
+.. |downwards-double-arrow| unicode:: 0x21d3
 
 .. list-table::
-    :header-rows: 1
+    :header-rows: 2
+    :stub-columns: 1
 
     *   - ``*_locked_dependencies``
-        - ``*_dev_dependencies``
-        - |arrow|
-        - source file
-        - |arrow|
-        - resulting ``deps``
-    *   - ``False``
         - ``False``
-        -
-        - ``pyproject.toml``
-        -
-        - ``Lib~=1.0``
-    *   - ``True``
+        - ``True``
         - ``False``
+        - ``True``
+    *   - ``*_dev_dependencies``
+        - ``False``
+        - ``False``
+        - ``True``
+        - ``True``
+    *   - |downwards-double-arrow|
         -
+        -
+        -
+        -
+    *   - read from file
+        - *none*
         - ``poetry.lock``
+        - ``pyproject.toml``
+        - ``poetry.lock``
+    *   - |downwards-double-arrow|
         -
+        -
+        -
+        -
+    *   - add to ``deps``
+        - *nothing*
         - ``Lib==1.2.3``
-    *   - ``False``
-        - ``True``
-        -
-        - ``pyproject.toml``
-        -
-        - ``Lib~=1.0``, ``Dev~=3.0``
-    *   - ``True``
-        - ``True``
-        -
-        - ``poetry.lock``
-        -
+        - ``Dev~=3.0``
         - ``Lib==1.2.3``, ``Dev==3.2.1``
 
 
