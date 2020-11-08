@@ -2,8 +2,6 @@
 
 """Tox plugin hooks."""
 
-from __future__ import annotations
-
 import pathlib
 import typing
 
@@ -11,11 +9,10 @@ import poetry.core.factory
 import tomlkit
 import tox
 
-if typing.TYPE_CHECKING:
-    IndexServersT = typing.Tuple[
-        tox.config.IndexServerConfig,  # PIP_INDEX_URL
-        typing.List[tox.config.IndexServerConfig],  # PIP_EXTRA_INDEX_URL
-    ]
+IndexServersT = typing.Tuple[
+    tox.config.IndexServerConfig,  # PIP_INDEX_URL
+    typing.List[tox.config.IndexServerConfig],  # PIP_EXTRA_INDEX_URL
+]
 
 PIP_DEFAULT_INDEX_SERVER_URL = 'https://pypi.org/simple'
 PIP_DEFAULT_INDEX_SERVER_NAME = 'pypi'
