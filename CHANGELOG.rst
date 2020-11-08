@@ -3,6 +3,13 @@
 
 .. Keep the current version number on line number 6
 
+0.0.6
+=====
+
+* Add support for Python 3.9
+* Fix issue with type hints that would cause failures on Python interpreters where `from __future__ import annotations` is not available (Python < 3.7).
+
+
 0.0.5
 =====
 
