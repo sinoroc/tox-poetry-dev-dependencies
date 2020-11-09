@@ -3,6 +3,12 @@
 
 .. Keep the current version number on line number 6
 
+0.0.7
+=====
+
+* Fix issue with unwarranted exceptions for unsupported locked dependencies.
+
+
 0.0.6
 =====
 
