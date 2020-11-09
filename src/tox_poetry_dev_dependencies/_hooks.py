@@ -14,6 +14,9 @@ IndexServersT = typing.Tuple[
     typing.List[tox.config.IndexServerConfig],  # PIP_EXTRA_INDEX_URL
 ]
 
+LockedDepT = typing.Tuple[tox.config.DepConfig, str]
+LockedDepsT = typing.Dict[str, typing.List[LockedDepT]]
+
 PIP_DEFAULT_INDEX_SERVER_URL = 'https://pypi.org/simple'
 PIP_DEFAULT_INDEX_SERVER_NAME = 'pypi'
 
@@ -34,10 +37,6 @@ class NoPyprojectTomlFound(_Exception):
 
 class CanNotHaveMultipleDefaultSourceRepositories(_Exception):
     """Can not have multiple 'default' source repositories."""
-
-
-class UnsupportedLockedDependency(_Exception):
-    """Unsupported type of locked dependency."""
 
 
 @tox.hookimpl  # type: ignore[misc]
@@ -204,17 +203,43 @@ def _add_index_servers_as_pip_env_vars(
 
 def _add_locked_dependencies(
         tox_config: tox.config.Config,
-        locked_deps: typing.Mapping[str, typing.List[tox.config.DepConfig]],
+        locked_deps: LockedDepsT,
 ) -> None:
     #
     for env_config in tox_config.envconfigs.values():
         if _is_test_env(env_config):
             if env_config.poetry_experimental_add_locked_dependencies is True:
-                for dep_config in locked_deps['main']:
-                    env_config.deps.append(dep_config)
+                _add_locked_deps(env_config, locked_deps, 'main')
                 if env_config.poetry_add_dev_dependencies is True:
-                    for dep_config in locked_deps['dev']:
-                        env_config.deps.append(dep_config)
+                    _add_locked_deps(env_config, locked_deps, 'dev')
+
+
+def _add_locked_deps(
+        env_config: tox.config.TestenvConfig,
+        locked_deps: LockedDepsT,
+        category: str,
+) -> None:
+    #
+    for dep_tuple in locked_deps[category]:
+        _add_locked_dep(env_config, dep_tuple)
+
+
+def _add_locked_dep(
+        env_config: tox.config.TestenvConfig,
+        dep_tuple: LockedDepT,
+) -> None:
+    #
+    (tox_dep_config, poetry_dep) = dep_tuple
+    if tox_dep_config:
+        env_config.deps.append(tox_dep_config)
+    else:
+        error_msg = (
+            "The plugin 'tox-poetry-dev-dependencies' can not add the"
+            " following locked dependency to the 'deps' configuration setting"
+            " for the test environement '{}': {}"
+        ).format(env_config.envname, poetry_dep)
+        #
+        tox.reporter.error(error_msg)
 
 
 def _get_poetry(project_root_path: pathlib.Path) -> poetry.core.poetry.Poetry:
@@ -297,9 +322,9 @@ def _get_index_servers(
 
 def _get_locked_deps(
         project_root_path: pathlib.Path,
-) -> typing.Dict[str, typing.List[tox.config.DepConfig]]:
+) -> LockedDepsT:
     #
-    locked_deps: typing.Dict[str, typing.List[tox.config.DepConfig]] = {}
+    locked_deps: LockedDepsT = {}
     #
     lock_file_path = project_root_path.joinpath(POETRY_LOCKFILE_FILE_NAME)
     if lock_file_path.is_file():
@@ -309,6 +334,7 @@ def _get_locked_deps(
         #
         for dependency in lock_document['package']:
             #
+            dep_config = None
             dep_pep_508 = None
             #
             dep_name = dependency['name']
@@ -324,11 +350,11 @@ def _get_locked_deps(
             #
             if dep_pep_508:
                 dep_config = tox.config.DepConfig(dep_pep_508)
-            else:
-                raise UnsupportedLockedDependency(dependency)
+            #
+            dep_tuple = (dep_config, dependency)
             #
             dep_category = dependency['category']
-            locked_deps.setdefault(dep_category, []).append(dep_config)
+            locked_deps.setdefault(dep_category, []).append(dep_tuple)
     #
     return locked_deps
 
