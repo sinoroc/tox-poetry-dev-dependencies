@@ -3,8 +3,12 @@
 
 .. Keep the current version number on line number 6
 
-0.0.8.dev0
-==========
+0.0.8
+=====
+
+*2020-11-16*
+
+* Fix some compatibility issues for Python 3.5
 
 
 0.0.7
