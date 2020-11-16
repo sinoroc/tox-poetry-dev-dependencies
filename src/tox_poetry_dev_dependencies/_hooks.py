@@ -114,7 +114,7 @@ def _is_test_env(env_config: tox.config.TestenvConfig) -> bool:
 def tox_configure(config: tox.config.Config) -> None:
     """Set hook."""
     #
-    project_dir_path = pathlib.Path(config.setupdir)
+    project_dir_path = pathlib.Path(str(config.setupdir))
     #
     try:
         poetry_ = _get_poetry(project_dir_path)
@@ -324,7 +324,7 @@ def _get_locked_deps(
         project_root_path: pathlib.Path,
 ) -> LockedDepsT:
     #
-    locked_deps: LockedDepsT = {}
+    locked_deps = {}  # type: LockedDepsT
     #
     lock_file_path = project_root_path.joinpath(POETRY_LOCKFILE_FILE_NAME)
     if lock_file_path.is_file():
@@ -344,9 +344,9 @@ def _get_locked_deps(
             if dep_source:
                 if dep_source['type'] == 'url':
                     dep_url = dep_source['url']
-                    dep_pep_508 = f'{dep_name} @ {dep_url}'
+                    dep_pep_508 = '{} @ {}'.format(dep_name, dep_url)
             else:
-                dep_pep_508 = f'{dep_name}=={dep_version}'
+                dep_pep_508 = '{}=={}'.format(dep_name, dep_version)
             #
             if dep_pep_508:
                 dep_config = tox.config.DepConfig(dep_pep_508)
