@@ -3,6 +3,14 @@
 
 .. Keep the current version number on line number 6
 
+0.0.9
+=====
+
+*2020-11-18*
+
+* Fix issue occuring when there are no 'dev' dependencies in the 'lockfile'
+
+
 0.0.8
 =====
 
