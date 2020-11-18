@@ -6,6 +6,8 @@
 0.0.9.dev0
 ==========
 
+* Fix issue occuring when there are no 'dev' dependencies in the 'lockfile'
+
 
 0.0.8
 =====

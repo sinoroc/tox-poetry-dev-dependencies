@@ -220,7 +220,7 @@ def _add_locked_deps(
         category: str,
 ) -> None:
     #
-    for dep_tuple in locked_deps[category]:
+    for dep_tuple in locked_deps.get(category, []):
         _add_locked_dep(env_config, dep_tuple)
 
 
